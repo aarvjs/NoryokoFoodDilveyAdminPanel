@@ -1,0 +1,219 @@
+import { db } from "@/firebase/config";
+import { 
+  collection, 
+  getDocs, 
+  getDoc, 
+  doc, 
+  setDoc, 
+  updateDoc, 
+  deleteDoc, 
+  onSnapshot, 
+  query, 
+  where, 
+  orderBy 
+} from "firebase/firestore";
+import { BranchModel } from "@/models/branch";
+
+const COLLECTION_NAME = "branches";
+
+export const branchRepository = {
+  async getAll(): Promise<BranchModel[]> {
+    try {
+      const q = query(collection(db, COLLECTION_NAME), orderBy("createdAt", "desc"));
+      const snap = await getDocs(q);
+      return snap.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() } as BranchModel));
+    } catch (e) {
+      console.warn("branchRepository.getAll error:", e);
+      return [];
+    }
+  },
+
+  async getByRestaurant(restaurantId: string): Promise<BranchModel[]> {
+    try {
+      const q = query(
+        collection(db, COLLECTION_NAME), 
+        where("restaurantId", "==", restaurantId)
+      );
+      const snap = await getDocs(q);
+      return snap.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() } as BranchModel));
+    } catch (e) {
+      console.warn("branchRepository.getByRestaurant error:", e);
+      return [];
+    }
+  },
+
+  subscribeByRestaurant(restaurantId: string, callback: (branches: BranchModel[]) => void, onError?: (err: any) => void) {
+    const q = query(
+      collection(db, COLLECTION_NAME), 
+      where("restaurantId", "==", restaurantId)
+    );
+    return onSnapshot(
+      q,
+      (snap) => {
+        const items = snap.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() } as BranchModel));
+        callback(items);
+      },
+      (err) => {
+        console.warn("branchRepository.subscribeByRestaurant notice:", err.message);
+        if (onError) onError(err);
+      }
+    );
+  },
+
+  subscribeAll(callback: (branches: BranchModel[]) => void, onError?: (err: any) => void) {
+    const q = query(collection(db, COLLECTION_NAME), orderBy("createdAt", "desc"));
+    return onSnapshot(
+      q,
+      (snap) => {
+        const items = snap.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() } as BranchModel));
+        callback(items);
+      },
+      (err) => {
+        console.warn("branchRepository.subscribeAll notice:", err.message);
+        if (onError) onError(err);
+      }
+    );
+  },
+
+  async getById(id: string): Promise<BranchModel | null> {
+    const docRef = doc(db, COLLECTION_NAME, id);
+    const snap = await getDoc(docRef);
+    if (snap.exists()) {
+      return { id: snap.id, ...snap.data() } as BranchModel;
+    }
+    return null;
+  },
+
+  async create(data: Partial<BranchModel>): Promise<BranchModel> {
+    if (!data.restaurantId) {
+      throw new Error("branchRepository.create: restaurantId is mandatory.");
+    }
+
+    const docRef = doc(collection(db, COLLECTION_NAME));
+    const now = new Date().toISOString();
+
+    const locSource = data.locationSource || data.location?.source || data.location?.locationSource || "search";
+    const addressStr = data.location?.address || data.location?.formattedAddress || data.formattedAddress || "Branch Address";
+    const latFromData = data.latitude !== undefined && data.latitude !== null && !isNaN(Number(data.latitude)) ? Number(data.latitude) : 0;
+    const lngFromData = data.longitude !== undefined && data.longitude !== null && !isNaN(Number(data.longitude)) ? Number(data.longitude) : 0;
+    const latFromLoc = data.location?.latitude !== undefined && data.location?.latitude !== null && !isNaN(Number(data.location.latitude)) ? Number(data.location.latitude) : 0;
+    const lngFromLoc = data.location?.longitude !== undefined && data.location?.longitude !== null && !isNaN(Number(data.location.longitude)) ? Number(data.location.longitude) : 0;
+
+    const latVal = latFromData !== 0 ? latFromData : (latFromLoc !== 0 ? latFromLoc : 0);
+    const lngVal = lngFromData !== 0 ? lngFromData : (lngFromLoc !== 0 ? lngFromLoc : 0);
+
+    const locationObj = {
+      ...data.location,
+      address: addressStr,
+      formattedAddress: addressStr,
+      latitude: latVal,
+      longitude: lngVal,
+      source: locSource,
+      locationSource: locSource
+    };
+
+    const radVal = Number(data.deliveryRadiusKm ?? (data as any).maximumDeliveryRadius ?? (data as any).serviceRadiusKm ?? 5);
+
+    const newBranch: any = {
+      id: docRef.id,
+      restaurantId: data.restaurantId,
+      restaurantName: data.restaurantName || "Restaurant",
+      name: data.name || "Branch Office",
+      branchName: data.name || "Branch Office",
+      phone: data.phone || "",
+      email: data.email || "",
+      managerName: data.managerName || "Unassigned",
+      managerEmail: data.managerEmail || "",
+      managerId: data.managerId || "",
+      deliveryRadiusKm: radVal,
+      maximumDeliveryRadius: radVal,
+      serviceRadiusKm: radVal,
+      deliveryRadius: radVal,
+      maxRadiusConfigured: true,
+      openingTime: data.openingTime || "09:00 AM",
+      closingTime: data.closingTime || "11:00 PM",
+      status: data.status || "OPEN",
+      address: addressStr,
+      formattedAddress: addressStr,
+      latitude: latVal,
+      longitude: lngVal,
+      locationSource: locSource,
+      location: locationObj,
+      todayOrdersCount: 0,
+      todayRevenue: 0,
+      createdAt: now,
+      updatedAt: now
+    };
+
+    await setDoc(docRef, newBranch);
+
+    if (locSource === "gps") {
+      console.log("[GPS] Saved to Firestore");
+    } else {
+      console.log("[Search] Saved to Firestore");
+    }
+
+    return newBranch as BranchModel;
+  },
+
+  async update(id: string, updated: Partial<BranchModel>): Promise<void> {
+    const docRef = doc(db, COLLECTION_NAME, id);
+    const now = new Date().toISOString();
+    const payload: any = { ...updated, updatedAt: now };
+
+    if (updated.deliveryRadiusKm !== undefined || (updated as any).maximumDeliveryRadius !== undefined || (updated as any).serviceRadiusKm !== undefined) {
+      const radiusVal = Number(updated.deliveryRadiusKm ?? (updated as any).maximumDeliveryRadius ?? (updated as any).serviceRadiusKm);
+      if (!isNaN(radiusVal) && radiusVal > 0) {
+        payload.deliveryRadiusKm = radiusVal;
+        payload.maximumDeliveryRadius = radiusVal;
+        payload.serviceRadiusKm = radiusVal;
+        payload.deliveryRadius = radiusVal;
+        payload.maxRadiusConfigured = true;
+      }
+    }
+    const locSource = updated.locationSource || updated.location?.source || updated.location?.locationSource;
+
+    if (updated.location) {
+      const addrStr = updated.location.address || updated.location.formattedAddress || "Branch Address";
+      const latFromData = updated.latitude !== undefined && updated.latitude !== null && !isNaN(Number(updated.latitude)) ? Number(updated.latitude) : 0;
+      const lngFromData = updated.longitude !== undefined && updated.longitude !== null && !isNaN(Number(updated.longitude)) ? Number(updated.longitude) : 0;
+      const latFromLoc = updated.location?.latitude !== undefined && updated.location?.latitude !== null && !isNaN(Number(updated.location.latitude)) ? Number(updated.location.latitude) : 0;
+      const lngFromLoc = updated.location?.longitude !== undefined && updated.location?.longitude !== null && !isNaN(Number(updated.location.longitude)) ? Number(updated.location.longitude) : 0;
+
+      const latVal = latFromData !== 0 ? latFromData : (latFromLoc !== 0 ? latFromLoc : 0);
+      const lngVal = lngFromData !== 0 ? lngFromData : (lngFromLoc !== 0 ? lngFromLoc : 0);
+
+      payload.address = addrStr;
+      payload.formattedAddress = addrStr;
+      payload.latitude = latVal;
+      payload.longitude = lngVal;
+      payload.locationSource = locSource || "search";
+      payload.location = {
+        ...updated.location,
+        address: addrStr,
+        formattedAddress: addrStr,
+        latitude: latVal,
+        longitude: lngVal,
+        source: locSource || "search",
+        locationSource: locSource || "search"
+      };
+    } else {
+      if (updated.latitude !== undefined) payload.latitude = Number(updated.latitude);
+      if (updated.longitude !== undefined) payload.longitude = Number(updated.longitude);
+      if (updated.locationSource !== undefined) payload.locationSource = updated.locationSource;
+    }
+
+    await updateDoc(docRef, payload);
+
+    if (locSource === "gps") {
+      console.log("[GPS] Saved to Firestore");
+    } else {
+      console.log("[Search] Saved to Firestore");
+    }
+  },
+
+  async delete(id: string): Promise<void> {
+    const docRef = doc(db, COLLECTION_NAME, id);
+    await deleteDoc(docRef);
+  }
+};

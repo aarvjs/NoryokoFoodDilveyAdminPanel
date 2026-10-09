@@ -1,0 +1,39 @@
+export interface OfferModel {
+  id: string;
+  restaurantId: string;
+  branchId: string;
+  branchIds?: string[];
+  branchName?: string;
+  branchNames?: string[];
+  title: string;
+  description: string;
+  banner: string;
+  type: "FESTIVAL" | "FREE_DELIVERY" | "FLAT_DISCOUNT" | "COMBO";
+  discountPercentage?: number;
+  coupon?: string;
+  minimumOrder?: number;
+  startDate?: string;
+  endDate?: string;
+  status: "ACTIVE" | "INACTIVE" | "DRAFT" | "EXPIRED";
+  createdAt: string;
+  validityType?: "FULL_DAY" | "SCHEDULED_TIME";
+  startTime?: string;
+  endTime?: string;
+  applicableDays?: string[];
+  usageLimit?: number;
+  maxUsesPerUser?: number;
+  usageCount?: number;
+  remainingUses?: number;
+  minimumOrderAmount?: number;
+  discountType?: "PERCENTAGE" | "FIXED_AMOUNT";
+  discountValue?: number;
+  maximumDiscountAmount?: number;
+  excludedCategoryIds?: string[];
+  excludedProductIds?: string[];
+  excludedComboIds?: string[];
+  excludedComboProductIds?: Record<string, string[]>;
+  isActive?: boolean;
+  lastActivatedAt?: string;
+  updatedAt?: string;
+}
+
