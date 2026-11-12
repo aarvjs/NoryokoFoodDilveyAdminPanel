@@ -136,14 +136,22 @@ export default function SuperAdminRestaurantsPage() {
             <div key={rest.id || `rest-${idx}`} className="bg-white border border-slate-200/80 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
               {/* Banner & Logo Header */}
               <div className="h-32 bg-slate-800 relative overflow-hidden">
-                <img src={rest.banner || rest.coverImage} alt={rest.name} className="w-full h-full object-cover opacity-80" />
+                <img 
+                  src={rest.banner || rest.coverImage || "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&auto=format&fit=crop&q=80"} 
+                  alt={rest.name} 
+                  className="w-full h-full object-cover opacity-80" 
+                />
                 <div className="absolute top-3 right-3">
                   <span className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${rest.status === "ACTIVE" ? "bg-emerald-500 text-white" : "bg-rose-500 text-white"}`}>
                     {rest.status}
                   </span>
                 </div>
                 <div className="absolute -bottom-4 left-4 w-16 h-16 rounded-xl border-4 border-white bg-white shadow overflow-hidden">
-                  <img src={rest.logo} alt={rest.name} className="w-full h-full object-cover" />
+                  <img 
+                    src={rest.logo || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=150&auto=format&fit=crop&q=80"} 
+                    alt={rest.name} 
+                    className="w-full h-full object-cover" 
+                  />
                 </div>
               </div>
 

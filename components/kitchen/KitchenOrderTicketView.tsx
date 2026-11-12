@@ -21,6 +21,9 @@ export const KitchenOrderTicketView: React.FC<KitchenOrderTicketViewProps> = ({
   const branchName = order.branchName || branch?.name || "Main Branch";
   const customerName = order.customerName || "Walk-in Customer";
   const customerPhone = order.customerPhone || "";
+  const isDineIn =
+    (order.orderType || "").toUpperCase() === "DINE_IN" ||
+    Boolean(order.tableNumber);
   const isTakeAway =
     (order.orderType || "").toUpperCase() === "TAKE_AWAY" ||
     (order.orderType || "").toUpperCase() === "TAKEAWAY";
@@ -51,6 +54,15 @@ export const KitchenOrderTicketView: React.FC<KitchenOrderTicketViewProps> = ({
 
       {/* TICKET METADATA */}
       <div className="border-b-2 border-dashed border-slate-900 pb-4 text-xs space-y-1.5">
+        {isDineIn && (
+          <div className="py-2 px-3 bg-slate-900 text-white rounded text-center my-1.5">
+            <span className="text-[10px] uppercase font-bold text-slate-300">DINE-IN SEATING</span>
+            <div className="text-2xl font-black tracking-wider">TABLE: {order.tableNumber || "T-01"}</div>
+            <div className="text-[10px] text-emerald-400 font-bold uppercase">
+              {order.orderSource === "COUNTER" ? "🖥️ Counter Order" : "📱 QR Table Order"}
+            </div>
+          </div>
+        )}
         <div className="flex justify-between items-center font-bold">
           <span>Date/Time:</span>
           <span>
@@ -64,12 +76,19 @@ export const KitchenOrderTicketView: React.FC<KitchenOrderTicketViewProps> = ({
         <div className="pt-1 flex justify-between items-center">
           <span className="font-bold">ORDER TYPE:</span>
           <span
-            className={`px-2.5 py-1 text-xs font-black rounded uppercase border-2 ${isTakeAway
+            className={`px-2.5 py-1 text-xs font-black rounded uppercase border-2 ${
+              isDineIn
+                ? "bg-emerald-100 text-emerald-950 border-emerald-950"
+                : isTakeAway
                 ? "bg-purple-100 text-purple-950 border-purple-950"
                 : "bg-blue-100 text-blue-950 border-blue-950"
-              }`}
+            }`}
           >
-            {isTakeAway ? "🛍️ TAKE AWAY / SELF PICKUP" : "🛵 DELIVERY ORDER"}
+            {isDineIn
+              ? `🍽️ DINE IN - TABLE #${order.tableNumber || "T-1"}`
+              : isTakeAway
+              ? "🛍️ TAKE AWAY / SELF PICKUP"
+              : "🛵 DELIVERY ORDER"}
           </span>
         </div>
       </div>

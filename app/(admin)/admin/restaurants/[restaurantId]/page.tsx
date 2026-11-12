@@ -221,14 +221,22 @@ export default function RestaurantDetailsPage() {
       {/* Header Banner */}
       <div className="bg-white border border-slate-200/80 rounded-3xl overflow-hidden shadow-sm">
         <div className="h-40 bg-slate-900 relative">
-          <img src={restaurant.banner} alt={restaurant.name} className="w-full h-full object-cover opacity-75" />
+          <img 
+            src={restaurant.banner || "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&auto=format&fit=crop&q=80"} 
+            alt={restaurant.name} 
+            className="w-full h-full object-cover opacity-75" 
+          />
           <div className="absolute top-4 left-4">
             <Link href="/admin/restaurants" className="px-3 py-1.5 bg-slate-900/80 text-white rounded-xl text-xs font-bold flex items-center gap-1 hover:bg-slate-900">
               <ArrowLeft className="w-4 h-4" /> Back to Restaurants
             </Link>
           </div>
           <div className="absolute -bottom-6 left-6 w-20 h-20 rounded-2xl border-4 border-white bg-white shadow-md overflow-hidden">
-            <img src={restaurant.logo} alt={restaurant.name} className="w-full h-full object-cover" />
+            <img 
+              src={restaurant.logo || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=150&auto=format&fit=crop&q=80"} 
+              alt={restaurant.name} 
+              className="w-full h-full object-cover" 
+            />
           </div>
         </div>
 

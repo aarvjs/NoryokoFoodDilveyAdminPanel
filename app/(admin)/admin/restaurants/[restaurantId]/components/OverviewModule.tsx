@@ -97,7 +97,11 @@ export function OverviewModule({ restaurant, onRefresh }: OverviewModuleProps) {
             </label>
             <div className="flex items-center gap-3">
               <div className="w-14 h-14 rounded-xl overflow-hidden bg-white border border-slate-200 shrink-0">
-                <img src={logoFile ? URL.createObjectURL(logoFile) : restaurant.logo} alt="Logo" className="w-full h-full object-cover" />
+                <img 
+                  src={logoFile ? URL.createObjectURL(logoFile) : (restaurant.logo || "https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=150&auto=format&fit=crop&q=80")} 
+                  alt="Logo" 
+                  className="w-full h-full object-cover" 
+                />
               </div>
               <input
                 type="file"
@@ -114,7 +118,11 @@ export function OverviewModule({ restaurant, onRefresh }: OverviewModuleProps) {
             </label>
             <div className="flex items-center gap-3">
               <div className="w-24 h-14 rounded-xl overflow-hidden bg-white border border-slate-200 shrink-0">
-                <img src={bannerFile ? URL.createObjectURL(bannerFile) : restaurant.banner} alt="Banner" className="w-full h-full object-cover" />
+                <img 
+                  src={bannerFile ? URL.createObjectURL(bannerFile) : (restaurant.banner || "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&auto=format&fit=crop&q=80")} 
+                  alt="Banner" 
+                  className="w-full h-full object-cover" 
+                />
               </div>
               <input
                 type="file"

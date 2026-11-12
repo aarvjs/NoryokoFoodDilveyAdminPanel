@@ -9,7 +9,8 @@ import { DaySelector, ALL_DAYS } from "@/components/ui/DaySelector";
 
 import { ComboManagementTab } from "@/components/combos/ComboManagementTab";
 import { CustomizationTab } from "@/components/customization/CustomizationTab";
-import { Sliders, Package } from "lucide-react";
+import { Sliders, Package, QrCode } from "lucide-react";
+import { CatalogueManagementTab } from "@/components/menus/CatalogueManagementTab";
 
 export default function SuperAdminMenusPage() {
   const products = useStore((state) => state.products);
@@ -37,7 +38,7 @@ export default function SuperAdminMenusPage() {
     return () => clearInterval(timer);
   }, []);
 
-  const [activeTab, setActiveTab] = useState<"products" | "combos" | "customization">("products");
+  const [activeTab, setActiveTab] = useState<"products" | "combos" | "customization" | "catalogue">("products");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Product | null>(null);
@@ -284,9 +285,30 @@ export default function SuperAdminMenusPage() {
         >
           <Sliders className="w-4 h-4" /> Customization ({customizationGroups.length})
         </button>
+
+        <button
+          onClick={() => setActiveTab("catalogue")}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${
+            activeTab === "catalogue"
+              ? "bg-purple-600 text-white shadow-md shadow-purple-600/20"
+              : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80"
+          }`}
+        >
+          <QrCode className="w-4 h-4" /> Add Catalogue / QR Menu
+        </button>
       </div>
 
       {/* Tab Content */}
+      {activeTab === "catalogue" && (
+        <CatalogueManagementTab
+          products={products}
+          branches={branches}
+          tables={useStore.getState().tables}
+          selectedBranchId={branches[0]?.id || ""}
+          onSelectBranch={() => {}}
+        />
+      )}
+
       {activeTab === "combos" && (
         <ComboManagementTab
           combos={combos}

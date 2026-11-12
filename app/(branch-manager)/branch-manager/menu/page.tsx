@@ -1,18 +1,21 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { UtensilsCrossed, Plus, Trash2, Edit3, X, Upload, Loader2, Star, Flame, Check, Search, Store, Package, Sliders, Filter } from "lucide-react";
+import { UtensilsCrossed, Plus, Trash2, Edit3, X, Upload, Loader2, Star, Flame, Check, Search, Store, Package, Sliders, Filter, QrCode } from "lucide-react";
 import { useStore } from "@/lib/store/useStore";
 import { Product, ProductCustomization } from "@/types";
 import { isEffectiveAvailable } from "@/lib/utils/availability";
 import { DaySelector, ALL_DAYS } from "@/components/ui/DaySelector";
 import { ComboManagementTab } from "@/components/combos/ComboManagementTab";
 import { CustomizationTab } from "@/components/customization/CustomizationTab";
+import { CatalogueManagementTab } from "@/components/menus/CatalogueManagementTab";
 
 export default function BranchManagerMenuPage() {
   const user = useStore((state) => state.user);
   const products = useStore((state) => state.products);
   const categories = useStore((state) => state.categories);
+  const branches = useStore((state) => state.branches);
+  const tables = useStore((state) => state.tables);
   const addProduct = useStore((state) => state.addProduct);
   const updateProduct = useStore((state) => state.updateProduct);
   const deleteProduct = useStore((state) => state.deleteProduct);
@@ -27,7 +30,7 @@ export default function BranchManagerMenuPage() {
   const updateCustomizationGroup = useStore((state) => state.updateCustomizationGroup);
   const deleteCustomizationGroup = useStore((state) => state.deleteCustomizationGroup);
 
-  const [activeTab, setActiveTab] = useState<"products" | "combos" | "customization">("products");
+  const [activeTab, setActiveTab] = useState<"products" | "combos" | "customization" | "catalogue">("products");
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Product | null>(null);
@@ -255,9 +258,29 @@ export default function BranchManagerMenuPage() {
         >
           <Sliders className="w-4 h-4" /> Customization ({branchCustomizationGroups.length})
         </button>
+
+        <button
+          onClick={() => setActiveTab("catalogue")}
+          className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 ${activeTab === "catalogue"
+            ? "bg-purple-600 text-white shadow-md shadow-purple-600/20"
+            : "bg-white text-slate-600 hover:bg-slate-100 border border-slate-200/80"
+            }`}
+        >
+          <QrCode className="w-4 h-4" /> Add Catalogue / QR Menu
+        </button>
       </div>
 
       {/* Tab Content */}
+      {activeTab === "catalogue" && (
+        <CatalogueManagementTab
+          products={branchProducts}
+          branches={branches.filter((b) => !user?.branchId || b.id === user.branchId)}
+          tables={tables.filter((t) => !user?.branchId || t.branchId === user.branchId)}
+          selectedBranchId={user?.branchId || branches[0]?.id || ""}
+          onSelectBranch={() => {}}
+        />
+      )}
+
       {activeTab === "combos" && (
         <ComboManagementTab
           combos={branchCombos}

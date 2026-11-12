@@ -1,11 +1,13 @@
 "use client";
 
 import React, { useState } from "react";
-import { Grid3X3, Plus, Edit3, Trash2, X, Loader2, QrCode, CheckCircle2 } from "lucide-react";
+import { Grid3X3, Plus, Edit3, Trash2, X, Loader2, QrCode, CheckCircle2, Download, Printer, Power } from "lucide-react";
 import { TableModel } from "@/models/table";
 import { BranchModel } from "@/models/branch";
 import { tableRepository } from "@/repositories/tableRepository";
 import { branchRepository } from "@/repositories/branchRepository";
+import { tableService } from "@/services/tableService";
+import { downloadTableQr, printTableQrs } from "@/lib/utils/qrUtils";
 import { Toast } from "@/components/ui/Toast";
 import { ConfirmModal } from "@/components/ui/ConfirmModal";
 
@@ -24,6 +26,43 @@ export function TablesModule({ restaurantId, branches, tables, onRefresh }: Tabl
 
   const [deletingTableId, setDeletingTableId] = useState<string | null>(null);
   const [selectedBranchId, setSelectedBranchId] = useState<string>(branches[0]?.id || "");
+  const [toggleLoadingId, setToggleLoadingId] = useState<string | null>(null);
+
+  const handleToggleActive = async (table: TableModel) => {
+    const nextState = table.isActive === false ? true : false;
+    if (!nextState) {
+      setToggleLoadingId(table.id);
+      try {
+        const { hasActiveBooking, hasActiveOrder, activeBookingsCount, activeOrdersCount } = 
+          await tableService.checkActiveTableSessions(table.id);
+        if (hasActiveBooking || hasActiveOrder) {
+          const proceed = window.confirm(
+            `⚠️ Warning: Table ${table.tableNumber} currently has:\n` +
+            (hasActiveBooking ? `• ${activeBookingsCount} active reservation(s)\n` : "") +
+            (hasActiveOrder ? `• ${activeOrdersCount} ongoing order(s)\n` : "") +
+            `\nDeactivating this table will hide it from new customer bookings and QR scanning, but existing orders/bookings will NOT be cancelled or deleted.\n\nDo you want to proceed with deactivation?`
+          );
+          if (!proceed) {
+            setToggleLoadingId(null);
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn("Active sessions check notice:", e);
+      }
+    }
+
+    try {
+      setToggleLoadingId(table.id);
+      await tableRepository.updateTable(table.id, { isActive: nextState });
+      setToastMessage(`Table ${table.tableNumber} is now ${nextState ? "ACTIVE" : "INACTIVE"}`);
+      onRefresh();
+    } catch (err: any) {
+      alert("Failed to toggle table status: " + err.message);
+    } finally {
+      setToggleLoadingId(null);
+    }
+  };
 
   const [formData, setFormData] = useState({
     branchId: branches[0]?.id || "",
@@ -173,28 +212,68 @@ export function TablesModule({ restaurantId, branches, tables, onRefresh }: Tabl
 
       {/* Table Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 text-xs">
-        {tables.map((t) => (
-          <div key={t.id} className="bg-white border border-slate-200/80 rounded-2xl p-4 space-y-3 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between font-black text-slate-900 text-sm">
-              <span className="flex items-center gap-1.5"><QrCode className="w-4 h-4 text-emerald-600" /> {t.tableNumber}</span>
-              <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-full text-[10px] uppercase font-bold">{t.status}</span>
-            </div>
+        {tables.map((t) => {
+          const branch = branches.find((b) => b.id === t.branchId);
+          return (
+            <div key={t.id} className="bg-white border border-slate-200/80 rounded-2xl p-4 space-y-3 shadow-sm hover:shadow-md transition-shadow">
+              <div className="flex items-center justify-between font-black text-slate-900 text-sm">
+                <span className="flex items-center gap-1.5"><QrCode className="w-4 h-4 text-emerald-600" /> {t.tableNumber}</span>
+                <div className="flex items-center gap-1.5">
+                  {/* Table Active/Inactive toggle */}
+                  <button
+                    type="button"
+                    disabled={toggleLoadingId === t.id}
+                    onClick={() => handleToggleActive(t)}
+                    className={`px-2 py-0.5 rounded-full text-[10px] font-extrabold transition-all cursor-pointer flex items-center gap-1 ${
+                      t.isActive !== false
+                        ? "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
+                        : "bg-rose-100 text-rose-800 hover:bg-rose-200"
+                    }`}
+                    title={t.isActive !== false ? "Active table. Click to deactivate." : "Inactive table. Click to activate."}
+                  >
+                    <Power className="w-2.5 h-2.5" />
+                    {toggleLoadingId === t.id ? "..." : (t.isActive !== false ? "ON" : "OFF")}
+                  </button>
+                  <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 rounded-full text-[10px] uppercase font-bold">{t.status}</span>
+                </div>
+              </div>
 
-            <div className="text-slate-600 space-y-1 bg-slate-50 p-2.5 rounded-xl border border-slate-200/60">
-              <p>Section: <strong>{t.section}</strong></p>
-              <p>Capacity: <strong>{t.capacity} Persons</strong> ({t.type})</p>
-            </div>
+              <div className="text-slate-600 space-y-1 bg-slate-50 p-2.5 rounded-xl border border-slate-200/60">
+                <p>Section: <strong>{t.section}</strong></p>
+                <p>Capacity: <strong>{t.capacity} Persons</strong> ({t.type})</p>
+              </div>
 
-            <div className="flex items-center justify-between pt-1 border-t border-slate-100">
-              <button onClick={() => handleOpenModal(t)} className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg">
-                <Edit3 className="w-4 h-4" />
-              </button>
-              <button onClick={() => setDeletingTableId(t.id)} className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg">
-                <Trash2 className="w-4 h-4" />
-              </button>
+              <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                <div className="flex items-center gap-1">
+                  <button
+                    type="button"
+                    onClick={() => downloadTableQr(t as any, "Noryoko Food", branch?.name || "Main Branch")}
+                    className="p-1.5 text-slate-600 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg flex items-center gap-1 text-[11px] font-bold"
+                    title="Download Table QR"
+                  >
+                    <Download className="w-3.5 h-3.5 text-emerald-600" /> QR
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => printTableQrs([t as any], "Noryoko Food", { [t.branchId]: branch?.name || "Main Branch" })}
+                    className="p-1.5 text-slate-600 hover:text-purple-700 hover:bg-purple-50 rounded-lg flex items-center gap-1 text-[11px] font-bold"
+                    title="Print Table QR"
+                  >
+                    <Printer className="w-3.5 h-3.5 text-purple-600" />
+                  </button>
+                </div>
+                <div className="flex items-center gap-1">
+                  <button onClick={() => handleOpenModal(t)} className="p-1.5 text-emerald-600 hover:bg-emerald-50 rounded-lg">
+                    <Edit3 className="w-4 h-4" />
+                  </button>
+                  <button onClick={() => setDeletingTableId(t.id)} className="p-1.5 text-rose-500 hover:bg-rose-50 rounded-lg">
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Modal for Add Table */}

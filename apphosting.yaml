@@ -18,37 +18,37 @@ env:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_API_KEY
-    value: AIzaSyCvMgI5zTZEKhX0H9yh8-9wDLWhwS6sGJE
+    value: AIzaSyDz3FJD9eDOUF8_bIa5xTnHvMUUdG-tMJw
     availability:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
-    value: food-app-bf79a.firebaseapp.com
+    value: food-delivery-app-b7e0b.firebaseapp.com
     availability:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
-    value: food-app-bf79a
+    value: food-delivery-app-b7e0b
     availability:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
-    value: food-app-bf79a.firebasestorage.app
+    value: food-delivery-app-b7e0b.firebasestorage.app
     availability:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
-    value: "385778712226"
+    value: "776025753668"
     availability:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_APP_ID
-    value: "1:385778712226:web:bacdae9f406d822772e1fb"
+    value: "1:776025753668:web:a1278c1638b5d5afae5411"
     availability:
       - BUILD
       - RUNTIME
   - variable: NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
-    value: G-W4403C97QJ
+    value: G-PQ2CSWNFRJ
     availability:
       - BUILD
       - RUNTIME

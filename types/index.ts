@@ -347,6 +347,7 @@ export interface Product {
   customizationGroups?: CustomizationGroup[];
   rating?: number;
   prepTimeMinutes: number;
+  inCatalogue?: boolean;
   status?: "ACTIVE" | "INACTIVE";
   createdAt?: string;
   updatedAt?: string;
@@ -359,11 +360,15 @@ export interface RestaurantTable {
   tableNumber: string;
   capacity: number;
   section: string;
-  type?: "Indoor" | "Outdoor";
-  environment?: "AC" | "Non AC";
+  type?: "Indoor" | "Outdoor" | "Rooftop" | "VIP Room" | string;
+  environment?: "AC" | "Non AC" | "Open Air" | string;
   status: "AVAILABLE" | "BOOKED" | "OCCUPIED" | "RESERVED" | "MAINTENANCE";
+  isActive?: boolean;
+  qrCodeKey?: string;
   qrCodeUrl?: string;
+  qrDataUrl?: string;
   createdAt?: string;
+  updatedAt?: string;
 }
 
 export type TableBookingStatus =
@@ -445,6 +450,10 @@ export interface Order {
   customInstructions?: string;
   branchFssaiNumber?: string;
   branchGstNumber?: string;
+  tableId?: string;
+  tableNumber?: string;
+  bookingId?: string;
+  orderSource?: "QR" | "COUNTER" | string;
   createdAt: string;
   updatedAt?: string;
 }

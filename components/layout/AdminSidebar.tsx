@@ -18,6 +18,8 @@ import {
   Coins,
   Palette,
   Bike,
+  QrCode,
+  Grid3X3,
   X
 } from "lucide-react";
 import { useStore } from "@/lib/store/useStore";
@@ -27,6 +29,9 @@ import { authService } from "@/services/authService";
 const adminNavItems = [
   { name: "Dashboard", href: "/admin/dashboard", icon: LayoutDashboard },
   { name: "Restaurants", href: "/admin/restaurants", icon: Store },
+  { name: "Master Menu", href: "/admin/menus", icon: UtensilsCrossed },
+  { name: "Catalogue Management", href: "/admin/catalogue", icon: QrCode },
+  { name: "Dining Tables & QR", href: "/admin/tables", icon: Grid3X3 },
   { name: "Theme Settings", href: "/admin/theme-settings", icon: Palette },
   { name: "Orders", href: "/admin/orders", icon: ShoppingBag },
   { name: "Kitchen Orders", href: "/admin/kitchen-orders", icon: UtensilsCrossed },

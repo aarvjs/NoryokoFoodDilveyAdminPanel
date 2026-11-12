@@ -250,7 +250,7 @@ export default function RestaurantThemeSettingsModule({ isAdminMode = false }: R
   };
 
   const handleResetToDefaults = () => {
-    if (confirm("Reset theme settings to original Perfect Pizza defaults?")) {
+    if (confirm("Reset theme settings to original Noryoko Food defaults?")) {
       setSliderImages(DEFAULT_HEADER_IMAGES);
       setHomeHeroSliders(DEFAULT_HOME_HERO_SLIDERS);
     }

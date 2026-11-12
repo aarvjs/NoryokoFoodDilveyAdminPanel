@@ -121,6 +121,7 @@ interface AppState {
   addTable: (table: Partial<RestaurantTable>) => Promise<RestaurantTable>;
   updateTable: (id: string, updated: Partial<RestaurantTable>) => Promise<void>;
   deleteTable: (id: string) => Promise<void>;
+  toggleTableActive: (id: string, nextActiveState: boolean) => Promise<void>;
 
   tableBookings: TableBooking[];
   setTableBookings: (bookings: TableBooking[]) => void;
@@ -454,6 +455,12 @@ export const useStore = create<AppState>()(
         await tableService.deleteTable(id);
         set((state) => ({
           tables: state.tables.filter((t) => t.id !== id)
+        }));
+      },
+      toggleTableActive: async (id, nextActiveState) => {
+        await tableService.toggleTableActive(id, nextActiveState);
+        set((state) => ({
+          tables: state.tables.map((t) => (t.id === id ? { ...t, isActive: nextActiveState } : t))
         }));
       },
 

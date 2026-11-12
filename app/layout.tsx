@@ -9,8 +9,8 @@ const jakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Food Kingdom Admin ERP | Production Restaurant Management",
-  description: "Next.js 15 Production-ready ERP and Admin Panel for Multi-branch Restaurants",
+  title: "Noryoko Food",
+  description: "Noryoko Food Admin Panel",
 };
 
 export default function RootLayout({

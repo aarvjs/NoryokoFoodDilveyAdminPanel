@@ -6,8 +6,8 @@ import { useStore } from "@/lib/store/useStore";
 
 export default function AdminSettingsPage() {
   const user = useStore((state) => state.user);
-  const [platformName, setPlatformName] = useState("BingeBite Admin");
-  const [supportEmail, setSupportEmail] = useState("support@bingebite.com");
+  const [platformName, setPlatformName] = useState("Noryoko Food Admin");
+  const [supportEmail, setSupportEmail] = useState("support@noryokofood.com");
   const [supportPhone, setSupportPhone] = useState("+91 9876543210");
   const [fssaiNumber, setFssaiNumber] = useState("");
   const [saved, setSaved] = useState(false);

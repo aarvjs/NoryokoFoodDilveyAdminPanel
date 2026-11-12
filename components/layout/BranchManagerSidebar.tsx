@@ -19,6 +19,7 @@ import {
   Truck,
   Coins,
   Palette,
+  QrCode,
   X
 } from "lucide-react";
 import { useStore } from "@/lib/store/useStore";
@@ -29,6 +30,7 @@ const branchManagerNavItems = [
   { name: "Branch Orders", href: "/branch-manager/orders", icon: ShoppingBag },
   { name: "Kitchen Orders", href: "/branch-manager/kitchen-orders", icon: UtensilsCrossed },
   { name: "Branch Menu", href: "/branch-manager/menu", icon: UtensilsCrossed },
+  { name: "QR Catalogue", href: "/branch-manager/catalogue", icon: QrCode },
   { name: "Categories", href: "/branch-manager/categories", icon: Layers },
   { name: "Tables Layout", href: "/branch-manager/tables", icon: Grid3X3 },
   { name: "Branch Customers", href: "/branch-manager/customers", icon: Users },

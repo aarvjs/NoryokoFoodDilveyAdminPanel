@@ -8,7 +8,10 @@ export interface TableModel {
   type: "Indoor" | "Outdoor" | "Rooftop" | "VIP Room";
   environment: "AC" | "Non AC" | "Open Air";
   status: "AVAILABLE" | "BOOKED" | "OCCUPIED" | "RESERVED" | "MAINTENANCE";
+  isActive?: boolean;
+  qrCodeKey?: string;
   qrCodeUrl?: string;
+  qrDataUrl?: string;
   createdAt: string;
   updatedAt?: string;
 }

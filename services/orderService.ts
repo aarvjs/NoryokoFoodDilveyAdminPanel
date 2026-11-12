@@ -361,6 +361,18 @@ export const orderService = {
       }
     }
     return { success: true, count: deletedCount };
+  },
+
+  createOrder: async (data: Partial<Order>): Promise<Order> => {
+    return orderService.addOrder(data);
+  },
+
+  updateOrder: async (id: string, data: Partial<Order>): Promise<void> => {
+    const docRef = doc(db, COLLECTION_NAME, id);
+    await updateDoc(docRef, {
+      ...data,
+      updatedAt: new Date().toISOString()
+    });
   }
 };
 

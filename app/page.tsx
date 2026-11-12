@@ -29,7 +29,7 @@ export default function RootLandingPage() {
             F
           </div>
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-white">Food Ordering System</h1>
+            <h1 className="text-xl font-bold tracking-tight text-white">Noryoko Food</h1>
             <p className="text-xs text-slate-400">Enterprise Multi-Branch Administration Portals</p>
           </div>
         </div>
@@ -98,7 +98,7 @@ export default function RootLandingPage() {
 
       {/* Footer */}
       <footer className="text-center text-xs text-slate-500 py-4 border-t border-slate-800/60">
-        Food Ordering System • Built for Production
+        Noryoko Food • Built for Production
       </footer>
     </div>
   );

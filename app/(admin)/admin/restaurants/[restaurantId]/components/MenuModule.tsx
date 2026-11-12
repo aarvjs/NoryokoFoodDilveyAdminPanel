@@ -349,7 +349,11 @@ export function MenuModule({ restaurantId, branches, categories, menuItems, onRe
               <tr key={item.id} className="hover:bg-slate-50">
                 <td className="px-4 py-3">
                   <div className="w-10 h-10 rounded-lg overflow-hidden bg-slate-100">
-                    <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+                    <img 
+                      src={item.image || "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=300&auto=format&fit=crop&q=80"} 
+                      alt={item.name} 
+                      className="w-full h-full object-cover" 
+                    />
                   </div>
                 </td>
                 <td className="px-4 py-3 font-bold text-slate-900">{item.name}</td>

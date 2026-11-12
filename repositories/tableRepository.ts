@@ -11,6 +11,7 @@ import {
   where 
 } from "firebase/firestore";
 import { TableModel, TableBookingModel } from "@/models/table";
+import { generateTableQr } from "@/lib/utils/qrUtils";
 
 const TABLES_COLLECTION = "tables";
 const BOOKINGS_COLLECTION = "tableBookings";
@@ -52,17 +53,35 @@ export const tableRepository = {
       throw new Error("tableRepository.createTable: branchId and restaurantId are mandatory.");
     }
 
+    const targetTableNum = (data.tableNumber || "T-01").trim();
+    // Check duplicate table number
+    const existingSnap = await getDocs(
+      query(collection(db, TABLES_COLLECTION), where("branchId", "==", data.branchId))
+    );
+    const isDuplicate = existingSnap.docs.some(
+      (d) => (d.data().tableNumber || "").toString().trim().toLowerCase() === targetTableNum.toLowerCase()
+    );
+    if (isDuplicate) {
+      throw new Error(`Table number "${targetTableNum}" already exists in this branch.`);
+    }
+
     const docRef = doc(collection(db, TABLES_COLLECTION));
+    const qrResult = await generateTableQr(docRef.id, data.branchId, data.restaurantId);
+
     const newTable: TableModel = {
       id: docRef.id,
       restaurantId: data.restaurantId,
       branchId: data.branchId,
-      tableNumber: data.tableNumber || "T-01",
+      tableNumber: targetTableNum,
       capacity: data.capacity || 4,
       section: data.section || "Main Dining",
       type: data.type || "Indoor",
       environment: data.environment || "AC",
       status: data.status || "AVAILABLE",
+      isActive: data.isActive !== undefined ? data.isActive : true,
+      qrCodeKey: qrResult.qrCodeKey,
+      qrCodeUrl: qrResult.qrCodeUrl,
+      qrDataUrl: qrResult.qrDataUrl,
       createdAt: new Date().toISOString()
     };
 
